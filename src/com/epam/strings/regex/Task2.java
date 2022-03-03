@@ -44,32 +44,31 @@ public class Task2 {
     }
 
     private static String xmlAnalyzer(String xml) {
-        String[] lines = xml.split("\n\\s");
+        String[] lines = xml.split("\n");
         StringBuilder strBuilder = new StringBuilder();
-        Pattern pOpen = Pattern.compile("<[^/](.+?)>");
-        Pattern pClose = Pattern.compile("<(/.+?)>");
-        Pattern pBody = Pattern.compile(">(.+?)<");
-        Pattern pEmpty = Pattern.compile("<(.+?/)>");
+        Pattern pOpen = Pattern.compile("<([^/].+?>)");
+        Pattern pClose = Pattern.compile("(</.+?>)");
+        Pattern pBody = Pattern.compile("(<[^/].+?>)(.+?)(</.+?>)");
+        Pattern pWithoutBody = Pattern.compile("<(.+?/)>");
 
         Matcher mOpen = pOpen.matcher(xml);
         Matcher mClose = pClose.matcher(xml);
         Matcher mBody = pBody.matcher(xml);
-        Matcher mEmpty = pEmpty.matcher(xml);
-        for (String line : lines) {
-            if (mEmpty.find()) {
-                strBuilder.append(mEmpty.group());
-                strBuilder.append(" - tag without body\n");
+        Matcher mWithoutBody = pWithoutBody.matcher(xml);
+
+        for (int i = 0; i < lines.length * 3; i++) {
+            if (mBody.find()) {
+                strBuilder.append(mBody.group(2));
+                strBuilder.append(" - body of tag\n");
             } else if (mOpen.find()) {
                 strBuilder.append(mOpen.group());
-                strBuilder.append(" - opened tag\n");
-            }
-            if (mClose.find()) {
+                strBuilder.append(" - open tag\n");
+            } else if (mClose.find()) {
                 strBuilder.append(mClose.group());
                 strBuilder.append(" - closed tag\n");
-            }
-            if (mBody.find()) {
-                strBuilder.append(mBody.group());
-                strBuilder.append(" - tag consists\n");
+            } else if (mWithoutBody.find()) {
+                strBuilder.append(mWithoutBody.group());
+                strBuilder.append(" - tag without body\n");
             }
         }
         return strBuilder.toString();
